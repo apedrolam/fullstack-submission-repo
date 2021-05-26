@@ -1,0 +1,13 @@
+title Part 0.6
+
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+note over server:
+the POST request contains the new note as JSON data
+content: "new note"
+date: "2021-05-26T00:00:00.000Z"
+end note
+server->browser: HTTP status code 201, created
+note over browser:
+server use js code fetched from the server
+ti add the new content into the notes array
+end note
