@@ -43,6 +43,10 @@ const App = () => {
       <p>has {points[selected]} points</p>
       <Button handleClick={voteAnecdote} text="Vote" />
       <Button handleClick={showNextAnecdote} text="Next anecdote"/>
+      <br></br>
+      <br></br>
+      {anecdotes[Object.keys(points).reduce((a, b) => points[a] > points[b] ? a : b)]} <br />
+      has {Object.values(points).reduce((a, b) => a > b ? a : b)} votes <br />
     </div>
   )
 }
