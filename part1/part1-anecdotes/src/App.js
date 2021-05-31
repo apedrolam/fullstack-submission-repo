@@ -2,9 +2,9 @@ import React, {useState} from 'react'
 
 const Button = (props) => {
   return (
-    <div>
+    <span>
       <button onClick={props.handleClick}>{props.text}</button>
-    </div>
+    </span>
   )
 }
 
@@ -18,16 +18,31 @@ const App = () => {
     'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
   ]
   const [selected, setSelected] = useState(0)
-  console.log(selected)
-  const handleClick = () => {
+  const [points, setPoints] = useState({
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0
+  })
+
+  const showNextAnecdote = () => {
     setSelected(Math.floor(Math.random() * ((anecdotes.length) - 0) + 0))
-    console.log(selected)
+  }
+  const voteAnecdote = () => {
+    const copyPoints = {...points}
+    copyPoints[selected] += 1
+    setPoints(copyPoints)
   }
 
   return (
     <div>
       {anecdotes[selected]}
-      <Button handleClick={handleClick} text="Next anecdote"/>
+      <br/>
+      <p>has {points[selected]} points</p>
+      <Button handleClick={voteAnecdote} text="Vote" />
+      <Button handleClick={showNextAnecdote} text="Next anecdote"/>
     </div>
   )
 }
