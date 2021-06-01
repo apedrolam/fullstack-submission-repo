@@ -1,8 +1,10 @@
 import React from 'react'
 
-const Person = ({ persons }) => {
+const Person = ({func}) => {
     return (
-        <li>{persons.name}</li>
+        <div>
+        {func}
+        </div>
     )
 }
 
