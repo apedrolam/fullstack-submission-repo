@@ -1,89 +1,76 @@
 import React, {useState, useEffect} from 'react'
+import './App.css';
 import axios from 'axios'
+import CountryCard from './components/CountryCard';
+import CountryList from './components/CountryList';
+import Filter from './components/Filter'
 
-const App = () => {
-  const [countries, setCountries] = useState([])
-  const [filteredCountries, setFilteredCountries ] = useState([])
-  const [filter, setFilter] = useState('')
+function App() {
+  const [countriesData, setCountriesData] = useState([])
+  const [filterName, setFilterName] = useState('')
 
+  // fetch the data for all countries from the website
   useEffect(() => {
+    console.log('effect')
     axios
       .get('https://restcountries.eu/rest/v2/all')
       .then(response => {
-        //console.log(response)
-        setCountries(response.data)
+        console.log('promise fulfilled')
+        setCountriesData(response.data)
       })
-  }, [])
+  }
+  , [])
 
-  const handleSearchCountriesInputBox = (event) => {
-    setFilter(event.target.value);
-    setFilteredCountries(
-      countries.filter((country) =>
-        country.name.toLowerCase().includes(event.target.value.toLowerCase())
-      )
-    );
+  const handleFilterChange = (event) => {
+    setFilterName(event.target.value)
   }
 
-  const MessageOrCountryDetailsToDisplay = () => {
-    if (filteredCountries.length > 10) {
-      return (
-        <div>
-          <p>Too many matches, specify another filer</p>
-        </div>
-      );
-    }
-    if (filteredCountries.length < 10 && filteredCountries.length > 1) {
-      return (
-        <div>
-          {filteredCountries.map((country) => {
-            return (
-              <div>
-                <li key={country.alpha2Code}>
-                  {country.name}{" "}
-                  <button
-                    onClick={() => {
-                      console.log(country);
-                      return (
-                        <div>
-                          <p key={country.alpha2Code}>{country.name}</p>
-                          <img className="flag" src={country.flag} alt={filteredCountries[0].name} key={country.alpha2Code}></img>
-                        </div>
-                      );
-                    }}
-                  >
-                    Show
-                  </button>
-                </li>
-              </div>
-            );
-          })}
-        </div>
-      );
-    }
-    if (filteredCountries.length === 1) {
-      return (
-        <div>
-          <h1>{filteredCountries[0].name}</h1>
-          <p>Capital: {filteredCountries[0].capital}</p>
-          <p>Population: {filteredCountries[0].population}</p>
-          {filteredCountries[0].languages.map((lang) => (
-            <li key={lang.name}>{lang.name}</li>
-          ))}
-          <p><img className="flag" src={filteredCountries[0].flag} alt={filteredCountries[0].name}></img></p>
-        </div>
-      );
-    } else return <div></div>;
-  }
+  let count = 0
+ 
+  // limit the displayed countries to only show ones included in the input
+  const countriesToShow = countriesData.filter(item => item.name.toLowerCase().includes(filterName.toLowerCase()))
+  
+  // what displays when more than one item found
+  const filterList = countriesToShow.map(country => {
+    count++ 
+    return(<li key={count} style={{marginBottom: "0.25rem"}}><label>{country.name}<button style={{marginLeft: "0.5rem"}} onClick={() => setFilterName(country.name)}>Show</button></label></li>)
+  })
 
+  // filting until you find one item
+  const filterSingle = (filterList.length === 1) ? countriesToShow[0]?.name : ''
+  const isCountryNameMatch = item => item?.name === filterSingle
+  
+  // find the location of when you've found one
+  const indexOfSingle = countriesData.findIndex(isCountryNameMatch)
   return (
-    <div>
-      find countries:{" "}
-      <input onChange={handleSearchCountriesInputBox} value={filter} />
-      <div>
-        <MessageOrCountryDetailsToDisplay />
-      </div>
-      
-    </div>
+   <main className="App">
+    <Filter
+      filterName={filterName}
+      handleFilterChange={handleFilterChange} />
+
+    {   
+        // Multiple ternaries to map through country data
+        // Starts with an empty search field
+        (!filterName.length) ?
+        <p>Enter a country name above</p> :
+        // Check if nothing in the input
+        (!countriesToShow.length) ? 
+        <p>No matches <button style={{marginLeft: "0.5rem"}} onClick={() => setFilterName('')}>Reset</button></p> :
+        // Check if over 10 results
+        (countriesToShow.length > 10 ) ? 
+        <p>Too many matches, specify another</p> : 
+        // Check if less than ten but still more than one 
+        (countriesToShow.length > 1 ) ? 
+        <CountryList filterList={filterList}/>
+        : 
+        // Only one match
+        <CountryCard 
+          filterSingle={filterSingle}
+          countriesData={countriesData}
+          indexOfSingle={indexOfSingle} />
+    }
+  
+   </main>
   );
 }
 
