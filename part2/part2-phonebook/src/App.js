@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import Person from './components/Person'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
+import personService from './services/persons'
 
 const App = () => {
   const [ persons, setPersons ] = useState([]) 
@@ -11,10 +11,10 @@ const App = () => {
   const [filter, setFilter ] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    personService
+      .getAll()
+      .then(initialPerson => {
+        setPersons(initialPerson)
       })
   }, [])
 
@@ -31,9 +31,13 @@ const App = () => {
       return
     }
 
-    setPersons(persons.concat(personObj))
-    setNewName('')
-    setNewPhone('')
+    personService
+      .create(personObj)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewPhone('')
+      })
   }
 
   const handleNameChange = (event) => {
@@ -50,7 +54,7 @@ const App = () => {
 
   const filterNames = filter === '' ? persons : persons.filter(person =>
     person.name.toLowerCase().includes(filter.toLowerCase()))
-
+    
   const displayPerson = () => filterNames.map(person => 
     <li key={person.name}>{person.name} - {person.phone}</li>
   )
